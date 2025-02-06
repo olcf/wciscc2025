@@ -6,16 +6,83 @@ A sample implementation of a Quantum Linear Systems Algorithm (QLSA), the [Harro
 
 An application to fluid dynamics is also provided. The fluid dynamics use case follows the work of [Bharadwaj & Srinivasan (2020)](https://www.sto.nato.int/publications/STO%20Educational%20Notes/STO-EN-AVT-377/EN-AVT-377-01.pdf) and [Gopalakrishnan Meena et al. (2024)](https://doi.org/10.1063/5.0231929). 
 
-## References
-* A. W. Harrow, A. Hassidim, and S. Lloyd, "Quantum algorithm for linear systems of equations," [Phys. Rev. Lett. 103, 150502](https://doi.org/10.1103/PhysRevLett.103.150502) (2009).
-* S. S. Bharadwaj and K. R. Sreenivasan, "Quantum computation of fluid dynamics," [arXiv:2007.09147](arXiv:2007.09147) (2020).
-* M. Gopalakrishnan Meena, K. C. Gottiparthi, J. G. Lietz, A. Georgiadou, and E. A. Coello Pérez, "Solving the Hele-Shaw flow using the Harrow-Hassidim-Lloyd algorithm on superconducting devices: A study of efficiency and challenges," [Physics of Fluids, 36 (10): 101705](https://doi.org/10.1063/5.0231929), (2024). ([preprint](http://arxiv.org/abs/2409.10857), [code](https://doi.org/10.5281/zenodo.13738192) - the current repo is adapted from this code)
-* [Qiskit - Getting started](https://qiskit.org/documentation/getting_started.html)
-* [Qiskit on IQM](https://iqm-finland.github.io/qiskit-on-iqm/user_guide.html)
+# Running <a name="running"></a>
 
-# Installation
+## Getting Started on Odo
 
-**NOTE**: For OLCF training/competitions, skip to the [Run](#run) section. Custom conda envs are created for your use. The following instruction is for installing the softwares from scratch.
+The instructions below are mainly for **running interactively** on OLCF Odo. The first time you run the Python scripts, it may take some time to load the libraries.
+
+The general workflow is to 1) Start an interactive job (or batch job) to use Odo's compute nodes, 2) Load the appropriate Python `conda` environment, 3) Generate the circuit, 4) Run the QLSA solver with the circuit you just generated, 5) Analyze your results
+
+> Note: Alternatively, you can use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts) using `sbatch` instead of `salloc`.
+
+1. Start interactive job
+    ```
+    salloc -A trn037 -p batch -N 1 -t 1:00:00
+    ```    
+2. Load Python environment:
+    * When targeting real quantum backends, you must go through a [proxy server for connecting outside OLCF](https://docs.olcf.ornl.gov/quantum/quantum_software/hybrid_hpc.html#batch-jobs) due to the Odo compute nodes being closed off from the internet by default. 
+      ```
+      export all_proxy=socks://proxy.ccs.ornl.gov:3128/
+      export ftp_proxy=ftp://proxy.ccs.ornl.gov:3128/
+      export http_proxy=http://proxy.ccs.ornl.gov:3128/
+      export https_proxy=http://proxy.ccs.ornl.gov:3128/
+      export no_proxy='localhost,127.0.0.0/8,*.ccs.ornl.gov'
+      ```
+    * First, load the relevant conda module:
+      ```
+      module load miniforge3/23.11.0
+      ```
+      How to activate the environment needed for circuit generation:
+      ```
+      source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-circuit 
+      ```
+      How to activate the environment needed for circuit solver:
+      ```
+      source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-solver
+      ```
+
+      > Note: you can only be in one active environment at a time. To switch between environments, you can use `source deactivate` followed by `source activate /path/to/a/give/env`
+
+      
+3. Run QLSA circuit generator script: [`circuit_HHL.py`](circuit_HHL.py)
+    ```
+    srun -N1 -n1 -c1 python circuit_HHL.py -case sample-tridiag -casefile input_vars.yaml --savedata
+    ```
+    * **NOTE:** Make sure to save the circuit.
+    * Try different case settings in the case file [`input_vars.yaml`](input_vars.yaml).
+
+4. Run the QLSA solver: [`solver.py`](solver.py)
+    ```
+    srun -N1 -n1 -c2 python solver.py -case sample-tridiag -casefile input_vars.yaml -s 1000
+    ```
+    * **NOTE:** Before running the code, deactivate the circuit generation env (`qlsa-circuit`) and activate the solver env (`qlsa-solver`).
+    * Experiment with different parameters in the code.
+
+## Running on real hardware
+
+> **NOTE:** To run using IQM machines, you need to add your IQM API KEY to the [`keys.sh`](keys.sh) file and `source` it. Although we will not be using IBM Quantum in the Winter Classic, this is the file you would put your IBM Quantum API key as well.
+
+* Make sure to export key variables in your key file: `source keys.sh`
+* On OLCF Odo's interactive or batch modes, need to export proxies to connect outside OLCF. See instructions above.
+* Running on IQM: 
+    * Currently, results are not returned when running on IQM for circuits with more than 2 qubits. The code returns an error.
+    * Need to use a post-processing code to retrieve results from the IQM Resonance portal. See the code [solver_getjob.ipynb](solver_getjob.ipynb) below.
+
+# Visualization
+
+See the following Jupyter notebooks for example scripts on how to generate plots:
+
+> Note: Although you won't be using OLCF's JupyterHub as part of the Winter Classic, these notebooks act as a examples for incorporating the proper python syntax into standalone python scripts.
+
+* [solver_getjob.ipynb](solver_getjob.ipynb): for retrieving jobs from online portal of IBM and IQM.
+* [plot_compare-backends.ipynb](plot_compare-backends.ipynb): visualizing the results from various backends.
+* [plot_Hele-Shaw.ipynb](plot_Hele-Shaw.ipynb): visualizing the results for solving the 2D Hele-Shaw flow problem.
+
+
+# Not Required: Installation
+
+> WARNING: You do not need to follow these instructions for the Winter Classic. We provide instructions below for the sake of completeness and if you ever want to explore installing from scratch outside of Odo / the Winter Classic. Skip to the [Running the code](#running) section for getting started running the code.
 
 All developments were done on [OLCF Odo](https://docs.olcf.ornl.gov/systems/odo_user_guide.html) and macOS. Based on steps in [OLCF Docs](https://docs.olcf.ornl.gov/quantum/quantum_software/hybrid_hpc.html#qiskit).
 
@@ -174,83 +241,12 @@ Since the [QLSA circuit generator](https://github.com/anedumla/quantum_linear_so
       ```
       </details>
 
-# Run
-
-The instructions below are mainly for running interactively on OLCF Odo. Use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts). The first time you run the Python scripts, it may take some time to load the libraries.
-
-1. Start interactive job
-    ```
-    salloc -A trn037 -p batch -N 1 -t 1:00:00
-    ```    
-2. Load Python environment:
-    * If you are using the real backends (need to connect externally to OLCF), you need to use the following [proxies for connecting outside OLCF](https://docs.olcf.ornl.gov/quantum/quantum_software/hybrid_hpc.html#batch-jobs)
-      ```
-      export all_proxy=socks://proxy.ccs.ornl.gov:3128/
-      export ftp_proxy=ftp://proxy.ccs.ornl.gov:3128/
-      export http_proxy=http://proxy.ccs.ornl.gov:3128/
-      export https_proxy=http://proxy.ccs.ornl.gov:3128/
-      export no_proxy='localhost,127.0.0.0/8,*.ccs.ornl.gov'
-      ```
-    * [Recommended for OLCF training/competition] You can either activate the pre-built env:
-      ```
-      source /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/bin/activate
-      ```
-      For circuit generation:
-      ```
-      conda activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-circuit 
-      ```
-      For circuit solver:
-      ```
-      conda activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-solver
-      ```
-    * Or activate your own coda envs. Follow env activation instructions from the [Installation](#installation) steps.
-3. Run QLSA circuit generator script: [`circuit_HHL.py`](circuit_HHL.py)
-    ```
-    srun -N1 -n1 -c1 python circuit_HHL.py -case sample-tridiag -casefile input_vars.yaml --savedata
-    ```
-    * **NOTE:** Make sure to save the circuit.
-    * Try different case settings in the case file [`input_vars.yaml`](input_vars.yaml).
-
-4. Run the QLSA solver: [`solver.py`](solver.py)
-    ```
-    srun -N1 -n1 -c2 python solver.py -case sample-tridiag -casefile input_vars.yaml -s 1000
-    ```
-    * **NOTE:** Before running the code, deactivate the circuit generation env (`qlsa-circuit`) and activate the solver env (`qlsa-solver`).
-    * Experiment with different parameters in the code.
-
-## Running on real hardware
-
-* Make sure to export key variables in your key file: `source keys.sh`
-* On OLCF Odo's interactive or batch modes, need to export proxies to connect outside OLCF. See instructions above.
-* Running on IQM: 
-    * Currently, results are not returned when running on IQM for circuits with more than 2 qubits. The code returns an error.
-    * Need to use a post-processing code to retrieve results from the IQM Resonance portal. See the code [solver_getjob.ipynb](solver_getjob.ipynb) below.
-* Running on IBM:
-    * Usually the queue wait times are long. So the code will not return any results.
-    * Check the IBM Dashboard to see if the job has finished and use the [solver_getjob.ipynb](solver_getjob.ipynb) to see the results.
-
-# Visualization
-
-See the following Jupyter notebooks for:
-
-* [solver_getjob.ipynb](solver_getjob.ipynb): for retrieving jobs from online portal of IBM and IQM.
-* [plot_compare-backends.ipynb](plot_compare-backends.ipynb): visualizing the results from various backends.
-* [plot_Hele-Shaw.ipynb](plot_Hele-Shaw.ipynb): visualizing the results for solving the 2D Hele-Shaw flow problem.
-
-## Using JupyterLab
-
-* Resource: [OLCF JupyterHub](https://docs.olcf.ornl.gov/services_and_applications/jupyter/overview.html#jupyter-at-olcf)
-* For OLCF training/competitions, use [OLCF Open JupyterHub](https://jupyter-open.olcf.ornl.gov/).
-* In your local machine, always install and start JupyterLab in your base conda env.
-* Use custom kernels as needed. See below for how to install custom kernels.
-* To import your custom conda env to JupyterLab, follow the steps below, which have been modified from the [OLCF JupyterHub docs](https://docs.olcf.ornl.gov/services_and_applications/jupyter/overview.html#example-creating-a-conda-environment-for-rapids):
-  * Install JupyterLab in your custom conda env. Do the rest of the steps in your base env.
-  * Follow steps 1-2: Open a Terminal on JupyterLab using the Launcher.
-  * Skip step 3: You don't have to create your own custom conda env as you have already done this on OLCF Odo.
-  * Follow step 4 (source activate your custom env) using the custom env you created. The custom env should be created in:
-      *  `/ccsopen/proj/[projid]` or `/gpfs/wolf2/olcf/[projid]/proj-shared` (recommended) for OLCF Odo.
-  * Follow step 5 (make your env visible in JupyterLab) using your desired env name: `python -m ipykernel install --user --name [env-name] --display-name [env-name]`. You may have to pip install the library `wcwidth` on the Jupyter terminal: `pip install wcwidth`
-  * Finally refresh your page and the Launcher (and kernel selector for notebooks) will have your env.
+# References
+* A. W. Harrow, A. Hassidim, and S. Lloyd, "Quantum algorithm for linear systems of equations," [Phys. Rev. Lett. 103, 150502](https://doi.org/10.1103/PhysRevLett.103.150502) (2009).
+* S. S. Bharadwaj and K. R. Sreenivasan, "Quantum computation of fluid dynamics," [arXiv:2007.09147](arXiv:2007.09147) (2020).
+* M. Gopalakrishnan Meena, K. C. Gottiparthi, J. G. Lietz, A. Georgiadou, and E. A. Coello Pérez, "Solving the Hele-Shaw flow using the Harrow-Hassidim-Lloyd algorithm on superconducting devices: A study of efficiency and challenges," [Physics of Fluids, 36 (10): 101705](https://doi.org/10.1063/5.0231929), (2024). ([preprint](http://arxiv.org/abs/2409.10857), [code](https://doi.org/10.5281/zenodo.13738192) - the current repo is adapted from this code)
+* [Qiskit - Getting started](https://qiskit.org/documentation/getting_started.html)
+* [Qiskit on IQM](https://iqm-finland.github.io/qiskit-on-iqm/user_guide.html)
 
 # Cite this work
 
