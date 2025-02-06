@@ -6,6 +6,8 @@
 #SBATCH -p batch
 #SBATCH -t 00:10:00
 
+# Only necessary if submitting this job script like: sbatch --export=NONE ... (recommended)
+# Do NOT include this line when submitting without --export=NONE
 unset SLURM_EXPORT_ENV
 
 # Set proxy settings so compute nodes can reach internet (required when using a real device)
@@ -15,16 +17,15 @@ export http_proxy=http://proxy.ccs.ornl.gov:3128/
 export https_proxy=http://proxy.ccs.ornl.gov:3128/
 export no_proxy='localhost,127.0.0.0/8,*.ccs.ornl.gov'
 
-conda deactivate
-source /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/bin/activate
+module load miniforge3/23.11.0
 
 # HHL circuit generator
-conda activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-circuit
+source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-circuit
 srun -N1 -n1 -c1 python circuit_HHL.py -case sample-tridiag -casefile input_vars.yaml --savedata
 
 # Run circuit
-conda deactivate
-conda activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-solver
+source deactivate
+source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-solver
 srun -N1 -n1 -c2 python solver.py -case sample-tridiag -casefile input_vars.yaml -s 1000
 
 # Run on real device
