@@ -21,6 +21,7 @@ module load miniforge3/23.11.0
 
 # HHL circuit generator
 source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-circuit
+mkdir models
 srun -N1 -n1 -c1 python circuit_HHL.py -case sample-tridiag -casefile input_vars.yaml --savedata
 
 # Run circuit
