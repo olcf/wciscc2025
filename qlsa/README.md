@@ -24,7 +24,6 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
     ```
     salloc -A trn037 -p batch -N 1 -t 1:00:00
     ```
-    > Note: Alternatively, you can use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts) using `sbatch --export=NONE submit_odo.sh`.
 
 2. Load Python environment:
     * When targeting real quantum backends, you must go through a [proxy server for connecting outside OLCF](https://docs.olcf.ornl.gov/quantum/quantum_software/hybrid_hpc.html#batch-jobs) due to the Odo compute nodes being closed off from the internet by default. 
@@ -67,6 +66,9 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
     * **NOTE:** Before running the code, deactivate the circuit generation env (`qlsa-circuit`) and activate the solver env (`qlsa-solver`).
     * Make sure to have your `qlsa-solver` conda environment activated.
     * Experiment with different parameters in the code.
+  
+> Note: Alternative to all of the above, you can use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts) using `sbatch --export=NONE submit_odo.sh`. The `submit_odo.sh` example batch script is already setup with the above steps; however, modifying that file is required if you want to change any python script arguments.
+
 
 ## Running on real hardware
 
