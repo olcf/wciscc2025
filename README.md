@@ -15,3 +15,10 @@ git clone https://github.com/olcf/wciscc2025.git
 
 Go to the [qlsa](qlsa) directory and open the [README](qlsa/README.md) file for more info.
 
+# Additional Resources
+
+* Summer 2024 HPC Crash Course on Odo: [Videos](https://vimeo.com/user/2373684/folder/24049648)
+* OLCF's Intro to Python: [Tutorial README](https://github.com/olcf/foundational_hpc_skills/tree/master/intro_to_python)
+* OLCF's Intro to Python Plotting: [Tutorial README](https://github.com/olcf/foundational_hpc_skills/tree/master/intro_to_plots)
+* OLCF's Intro to Unix: [Tutorial README](https://github.com/olcf/foundational_hpc_skills/tree/master/intro_to_unix)
+
