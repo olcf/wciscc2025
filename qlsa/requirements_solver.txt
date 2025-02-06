@@ -1,0 +1,9 @@
+PyYAML==6.0.1
+qiskit==1.0.2
+qiskit-aer==0.14.1
+qiskit-ibm-runtime==0.23.0
+qiskit-qasm3-import==0.4.2
+jupyterlab==4.2.0
+matplotlib==3.8.4
+qiskit-iqm==15.5
+python-dotenv==1.0.1
