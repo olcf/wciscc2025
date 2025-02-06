@@ -14,7 +14,7 @@ The instructions below are mainly for **running interactively** on OLCF Odo. The
 
 The general workflow is to 1) Start an interactive job (or batch job) to use Odo's compute nodes, 2) Load the appropriate Python `conda` environment, 3) Generate the circuit, 4) Run the QLSA solver with the circuit you just generated, 5) Analyze your results
 
-0. Clone the repository
+0. Clone the repository and `cd` into the `qlsa` directory (if you have not already)
     ```
     git clone https://github.com/olcf/wciscc2025.git
     cd wciscc2025
@@ -72,7 +72,7 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
 
 ## Running on real hardware
 
-> **NOTE:** To run using IQM machines, you need to add your IQM API KEY to the [`keys.sh`](keys.sh) file and `source` it. Although we will not be using IBM Quantum in the Winter Classic, this is the file you would put your IBM Quantum API key as well.
+**NOTE:** To run using IQM machines, you need to add your IQM API KEY to the [`keys.sh`](keys.sh) file and `source` it. Although we will not be using IBM Quantum in the Winter Classic, this is the file you would put your IBM Quantum API key as well.
 
 * Make sure to export key variables in your key file: `source keys.sh`
 * Make sure to use the relevant `--backend_type` and `--backend_method` flags (e.g., `--backend_type real-iqm --backend_method garnet:mock`
