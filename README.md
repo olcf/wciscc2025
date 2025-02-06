@@ -21,4 +21,5 @@ Go to the [qlsa](qlsa) directory and open the [README](qlsa/README.md) file for 
 * OLCF's Intro to Python: [Tutorial README](https://github.com/olcf/foundational_hpc_skills/tree/master/intro_to_python)
 * OLCF's Intro to Python Plotting: [Tutorial README](https://github.com/olcf/foundational_hpc_skills/tree/master/intro_to_plots)
 * OLCF's Intro to Unix: [Tutorial README](https://github.com/olcf/foundational_hpc_skills/tree/master/intro_to_unix)
+* OLCF's Conda Basics: [Tutorial README](https://docs.olcf.ornl.gov/software/python/conda_basics.html)
 
