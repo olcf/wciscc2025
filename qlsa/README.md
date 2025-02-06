@@ -16,6 +16,12 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
 
 > Note: Alternatively, you can use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts) using `sbatch` instead of `salloc`.
 
+0. Clone the repository
+    ```
+    git clone https://github.com/olcf/wciscc2025.git
+    cd wciscc2025
+    cd qlsa
+    ```
 1. Start interactive job
     ```
     salloc -A trn037 -p batch -N 1 -t 1:00:00
@@ -33,11 +39,11 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
       ```
       module load miniforge3/23.11.0
       ```
-      How to activate the environment needed for circuit generation:
+      How to activate the environment needed for circuit generation (the environment used in "Step 3"):
       ```
       source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-circuit 
       ```
-      How to activate the environment needed for circuit solver:
+      How to activate the environment needed for circuit solver (the environment used in "Step 4"):
       ```
       source activate /gpfs/wolf2/olcf/trn037/proj-shared/81a/software/miniconda3-odo/envs/qlsa-solver
       ```
@@ -47,9 +53,11 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
       
 3. Run QLSA circuit generator script: [`circuit_HHL.py`](circuit_HHL.py)
     ```
+    mkdir models
     srun -N1 -n1 -c1 python circuit_HHL.py -case sample-tridiag -casefile input_vars.yaml --savedata
     ```
     * **NOTE:** Make sure to save the circuit.
+    * Make sure to have your `qlsa-circuit` conda environment activated.
     * Try different case settings in the case file [`input_vars.yaml`](input_vars.yaml).
 
 4. Run the QLSA solver: [`solver.py`](solver.py)
@@ -57,6 +65,7 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
     srun -N1 -n1 -c2 python solver.py -case sample-tridiag -casefile input_vars.yaml -s 1000
     ```
     * **NOTE:** Before running the code, deactivate the circuit generation env (`qlsa-circuit`) and activate the solver env (`qlsa-solver`).
+    * Make sure to have your `qlsa-solver` conda environment activated.
     * Experiment with different parameters in the code.
 
 ## Running on real hardware
@@ -64,7 +73,8 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
 > **NOTE:** To run using IQM machines, you need to add your IQM API KEY to the [`keys.sh`](keys.sh) file and `source` it. Although we will not be using IBM Quantum in the Winter Classic, this is the file you would put your IBM Quantum API key as well.
 
 * Make sure to export key variables in your key file: `source keys.sh`
-* On OLCF Odo's interactive or batch modes, need to export proxies to connect outside OLCF. See instructions above.
+* Make sure to use the relevant `--backend_type` and `--backend_method` flags (e.g., `--backend_type real-iqm --backend_method garnet:mock`
+* On OLCF Odo's interactive or batch nodes, need to export proxies to connect outside OLCF. See instructions above.
 * Running on IQM: 
     * Currently, results are not returned when running on IQM for circuits with more than 2 qubits. The code returns an error.
     * Need to use a post-processing code to retrieve results from the IQM Resonance portal. See the code [solver_getjob.ipynb](solver_getjob.ipynb) below.
