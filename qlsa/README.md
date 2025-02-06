@@ -14,8 +14,6 @@ The instructions below are mainly for **running interactively** on OLCF Odo. The
 
 The general workflow is to 1) Start an interactive job (or batch job) to use Odo's compute nodes, 2) Load the appropriate Python `conda` environment, 3) Generate the circuit, 4) Run the QLSA solver with the circuit you just generated, 5) Analyze your results
 
-> Note: Alternatively, you can use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts) using `sbatch` instead of `salloc`.
-
 0. Clone the repository
     ```
     git clone https://github.com/olcf/wciscc2025.git
@@ -25,7 +23,9 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
 1. Start interactive job
     ```
     salloc -A trn037 -p batch -N 1 -t 1:00:00
-    ```    
+    ```
+    > Note: Alternatively, you can use the batch script [`submit_odo.sh`](submit_odo.sh) to [submit a batch job on OLCF Odo](https://docs.olcf.ornl.gov/systems/frontier_user_guide.html#batch-scripts) using `sbatch --export=NONE submit_odo.sh`.
+
 2. Load Python environment:
     * When targeting real quantum backends, you must go through a [proxy server for connecting outside OLCF](https://docs.olcf.ornl.gov/quantum/quantum_software/hybrid_hpc.html#batch-jobs) due to the Odo compute nodes being closed off from the internet by default. 
       ```
