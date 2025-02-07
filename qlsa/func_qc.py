@@ -209,21 +209,52 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     
 # function to measure the qubits
 def get_ancillaqubit(counts, nq):
-    '''
+    """
     NOTE: only count measurements when ancilla qubit (leftmost) is 1
-    Input: 
+    Input:
         counts   counts from the simulator
         nq       number of qubits used to represent the system or solution vector
-    Output: 
+    Output:
         counts_ancill     acounts of the measurements where ancilla qubit = 1
         other metricis for combination of nq qubits = 1
-    '''
+    """
+    # add 0-count measurements results
+    bits_prefix = "1" + (len(next(iter(counts))) - nq - 1) * "0"
+
+    def printTheArray(arr, n):
+        cache = ""
+        for i in range(0, n):
+            cache += str(arr[i])
+        if bits_prefix + cache not in counts:
+            counts[bits_prefix + cache] = 0
+
+    # Function to generate all binary strings
+    def generateAllBinaryStrings(n, arr, i):
+        if i == n:
+            printTheArray(arr, n)
+            return
+        # First assign "0" at ith position
+        # and try for all other permutations
+        # for remaining positions
+        arr[i] = 0
+        generateAllBinaryStrings(n, arr, i + 1)
+        # And then assign "1" at ith position
+        # and try for all other permutations
+        # for remaining positions
+        arr[i] = 1
+        generateAllBinaryStrings(n, arr, i + 1)
+
+    arr = [None] * len(next(iter(counts)))
+
+    # Print all binary strings
+    generateAllBinaryStrings(nq, arr, 0)
+
     counts_list = list(counts.items())
     counts_ancilla = []
     ancilla_states = []
     # check the left most qubit
     for i in range(len(counts_list)):
-        if counts_list[i][0][0]=='1': # extract all ancilla qubits=1
+        if counts_list[i][0][0] == "1":  # extract all ancilla qubits=1
             counts_ancilla += (counts_list[i],)
             ancilla_states += (counts_list[i][0],)
     # sort based on right most qubits. Find the argsort and manually rearrange the counts list.
@@ -232,9 +263,11 @@ def get_ancillaqubit(counts, nq):
     for i in range(len(counts_ancilla)):
         counts_ancilla_sorted += (counts_ancilla[ancilla_states_sortedID[i]],)
     counts_ancilla = counts_ancilla_sorted.copy()
+
     # At this point, all the states are sorted such that ancilla=1 and the combination of nb qubits is 0 or 1
     # So, we take the first 2**nb states (OR size of the system)
     num_state = 2**nq
+    # print(f'The number of counts of ancilla bits: {len(counts_ancilla)}, N.O num_state: {num_state}')
     # re-compute counts_total
     counts_total = 0
     for i in range(num_state):
@@ -243,8 +276,8 @@ def get_ancillaqubit(counts, nq):
     probs_vector = []
     counts_vector = []
     for i in range(num_state):
-        probs_vector += (counts_ancilla[i][1]/(1.0*counts_total),)
-        counts_vector += (np.sqrt(counts_ancilla[i][1]/(1.0*counts_total)),)
+        probs_vector += (counts_ancilla[i][1] / (1.0 * counts_total),)
+        counts_vector += (np.sqrt(counts_ancilla[i][1] / (1.0 * counts_total)),)
     return counts_ancilla, counts_total, np.array(probs_vector), np.array(counts_vector)
 
 # function to compute fidelity of the solution
