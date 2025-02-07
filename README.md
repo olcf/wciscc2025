@@ -7,7 +7,7 @@ git clone https://github.com/olcf/wciscc2025.git
 
 # Presentations & Docs
 
-* Intro to Quantum Linear Solver Algorithm: [Video](), [Slides](docs/2025-02_WCISCC-QLSA.pptx)
+* Intro to Quantum Linear Solver Algorithm: [Video](https://vimeo.com/1054568957), [Slides](docs/2025-02_WCISCC-QLSA.pptx)
 * Intro to the Challenge: [Slides](docs/2025-02_WCISCC-Intro.pptx)
 * Details of the Challenge: [PDF Document](docs/Challenge.pdf)
 
