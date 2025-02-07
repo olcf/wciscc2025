@@ -16,6 +16,7 @@ import func_matrix_vector as matvec
 
 import time
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-case", "--case_name",  type=str, default='ideal', required=False, help="Name of the problem case: 'sample-tridiag', 'hele-shaw'")
@@ -44,6 +45,11 @@ if __name__ == '__main__':
     classical_solution = np.linalg.solve(matrix, vector/np.linalg.norm(vector))
     t_classical = time.time() - t
     print(f'Time elapsed for classical:  {int(t_classical/60)} min {t_classical%60:.2f} sec', flush=True)
+    
+    if args.backend_type in ('real-iqm'):
+        os.environ["USING_IQM"] = "1"
+    else:
+        os.environ["USING_IQM"] = "0"
     
     # quantum solution
     qc_circ(n_qubits_matrix, classical_solution, args, input_vars)
