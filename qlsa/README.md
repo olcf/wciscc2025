@@ -78,7 +78,7 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
 * Make sure to use the relevant `--backend_type` and `--backend_method` flags (e.g., `--backend_type real-iqm --backend_method garnet:mock`
 * On OLCF Odo's interactive or batch nodes, need to export proxies to connect outside OLCF. See instructions above.
 * Running on IQM: 
-    * Currently, results are not returned when running on IQM for circuits with more than 2 qubits. The code returns an error.
+    * There might be delays in returning the results due to availability of the resource.
     * Need to use a post-processing code to retrieve results from the IQM Resonance portal. See the code [solver_getjob.ipynb](solver_getjob.ipynb) below.
 
 # Visualization
