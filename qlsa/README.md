@@ -122,7 +122,7 @@ Since the [QLSA circuit generator](https://github.com/anedumla/quantum_linear_so
 1. Make custom conda env
       ```
       conda create --name qlsa-circuit python=3.11
-      conda activate qlsa-circuit
+      source activate qlsa-circuit
       ```
 2. Install Qiskit and [quantum linear solver](https://github.com/anedumla/quantum_linear_solvers) package
       ```
@@ -197,12 +197,12 @@ Since the [QLSA circuit generator](https://github.com/anedumla/quantum_linear_so
 
 ## 2. Install Libraries for the Solver Used to Run the HHL Circuit
 
-**NOTE:** Before installing or using the solver environment, deactivate (`conda deactivate`) the circuit generation env `qlsa-circuit`.
+**NOTE:** Before installing or using the solver environment, deactivate (`source deactivate`) the circuit generation env `qlsa-circuit`.
 
 1. Make custom conda env
       ```
       conda create --name qlsa-solver python=3.11
-      conda activate qlsa-solver
+      source activate qlsa-solver
       ```
 2. Install Qiskit and other packages
       ```
@@ -252,6 +252,8 @@ Since the [QLSA circuit generator](https://github.com/anedumla/quantum_linear_so
       Time elapsed 2:  0 min 0.01 sec
       ```
       </details>
+
+> Warning: For our purposes, we "hacked" Qiskit's `backend_sampler_v2.py` to workaround IQM returning results in raw strings instead of bytes. The fixed routine is here: `/gpfs/wolf2/olcf/trn037/world-shared/backend_sampler_v2.py`. (in original lines 211/212, switched `num_bytes` to be the length of the string instead)
 
 # References
 * A. W. Harrow, A. Hassidim, and S. Lloyd, "Quantum algorithm for linear systems of equations," [Phys. Rev. Lett. 103, 150502](https://doi.org/10.1103/PhysRevLett.103.150502) (2009).
