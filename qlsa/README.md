@@ -76,6 +76,9 @@ The general workflow is to 1) Start an interactive job (or batch job) to use Odo
 
 * Make sure to export key variables in your key file: `source keys.sh`
 * Make sure to use the relevant `--backend_type` and `--backend_method` flags (e.g., `--backend_type real-iqm --backend_method garnet:mock`
+    * To submit a "mock" emulator job (can do this at any time): use `--backend_type real-iqm --backend_method garnet:mock`
+    * To run during a "Pay-as-you-go" window: use `--backend_type real-iqm --backend_method garnet`
+    * To run during a "Timeslot" window: use `--backend_type real-iqm --backend_method garnet:timeslot`
 * On OLCF Odo's interactive or batch nodes, need to export proxies to connect outside OLCF. See instructions above.
 * Running on IQM: 
     * There might be delays in returning the results due to availability of the resource.
