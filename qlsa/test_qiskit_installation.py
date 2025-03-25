@@ -7,36 +7,42 @@ Sample run script:
 python test_qiskit_installation.py -backtyp ideal
 '''
 
-import numpy as np
 import os
-from qiskit import QuantumCircuit
-from qiskit_ibm_runtime import SamplerV2 as Sampler
-
 import argparse
+from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit_ibm_runtime import SamplerV2 as Sampler
+from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2
+from iqm.qiskit_iqm import IQMProvider
+
+# or use FakeProvider for V1 fake backends -
+# https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/fake_provider
+
 parser = argparse.ArgumentParser()
-parser.add_argument("-backtyp", "--backend_type",  type=str, default='ideal', required=False, help="Type of the backend: 'ideal', 'fake-ibm' 'real-ibm' 'real-iqm'")
+parser.add_argument("-backtyp", "--backend_type",  type=str, default='ideal',
+    required=False,
+    help="Type of the backend: 'ideal', 'fake-ibm' 'real-ibm' 'real-iqm'")
 args = parser.parse_args()
 
 if __name__ == '__main__':
     backend_type = args.backend_type
     # Choose the simulator or backend to run the quantum circuit
     if backend_type=='ideal':
-        # Using ideal simulator, AerSimulator (works even without IBMQ account, don't have to wait in a queue)
-        from qiskit_aer import AerSimulator
+        # Using ideal simulator, AerSimulator (works even without IBMQ account,
+        # don't have to wait in a queue)
         backend = AerSimulator()
     elif backend_type=='fake-ibm':
-        # Using qiskit's fake provider (works even without IBMQ account, don't have to wait in a queue)
-        from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2  # or use FakeProvider for V1 fake backends - https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/fake_provider
+        # Using qiskit's fake provider (works even without IBMQ account,
+        # don't have to wait in a queue)
         backend = FakeProviderForBackendV2().backend("fake_sherbrooke")
     elif backend_type=='real-ibm':
         # Using the latest qiskit_ibm_runtime
         #### IF YOU HAVE AN IBMQ ACCOUNT (using an actual backend) #####
-        
-        from qiskit_ibm_runtime import QiskitRuntimeService
         # save your IBM accout for future loading
         API_KEY = os.getenv('IBMQ_API_KEY')
         instance = os.getenv('IBMQ_INSTANCE')
-        
+
         # save your QiskitRuntimeService accout for future loading
         QiskitRuntimeService.save_account(
         channel="ibm_quantum",
@@ -48,16 +54,14 @@ if __name__ == '__main__':
         backend = service.backend("ibm_sherbrooke")
         print("WARNING: When using the real IBM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
     elif backend_type=='fake-iqm':
-            from iqm.qiskit_iqm import IQMProvider
             # save your IQM account for future loading
             API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-            server_url = f"https://cocos.resonance.meetiqm.com/garnet:mock"
+            server_url = "https://cocos.resonance.meetiqm.com/garnet:mock"
             backend = IQMProvider(server_url, token=API_KEY).get_backend('facade_garnet')
     elif backend_type=='real-iqm':
-            from iqm.qiskit_iqm import IQMProvider
             # save your IQM account for future loading
             API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-            server_url = f"https://cocos.resonance.meetiqm.com/garnet"
+            server_url = "https://cocos.resonance.meetiqm.com/garnet"
             backend = IQMProvider(server_url, token=API_KEY).get_backend()
             print("WARNING: When using the real IQM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
     else:
