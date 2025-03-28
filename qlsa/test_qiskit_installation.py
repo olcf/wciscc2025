@@ -16,8 +16,7 @@ from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2
 from iqm.qiskit_iqm import IQMProvider
 
-# or use FakeProvider for V1 fake backends -
-# https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/fake_provider
+#pylint: disable=broad-exception-raised, line-too-long, ungrouped-imports, invalid-name
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-backtyp", "--backend_type",  type=str, default='ideal',
@@ -45,27 +44,27 @@ if __name__ == '__main__':
 
         # save your QiskitRuntimeService accout for future loading
         QiskitRuntimeService.save_account(
-        channel="ibm_quantum",
-        instance=instance,
-        token=API_KEY,
-        overwrite=True
+            channel="ibm_quantum",
+            instance=instance,
+            token=API_KEY,
+            overwrite=True
         )
         service = QiskitRuntimeService()
         backend = service.backend("ibm_sherbrooke")
         print("WARNING: When using the real IBM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
     elif backend_type=='fake-iqm':
-            # save your IQM account for future loading
-            API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-            server_url = "https://cocos.resonance.meetiqm.com/garnet:mock"
-            backend = IQMProvider(server_url, token=API_KEY).get_backend('facade_garnet')
+        # save your IQM account for future loading
+        API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
+        server_url = "https://cocos.resonance.meetiqm.com/garnet:mock"
+        backend = IQMProvider(server_url, token=API_KEY).get_backend('facade_garnet')
     elif backend_type=='real-iqm':
-            # save your IQM account for future loading
-            API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-            server_url = "https://cocos.resonance.meetiqm.com/garnet"
-            backend = IQMProvider(server_url, token=API_KEY).get_backend()
-            print("WARNING: When using the real IQM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
+        # save your IQM account for future loading
+        API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
+        server_url = "https://cocos.resonance.meetiqm.com/garnet"
+        backend = IQMProvider(server_url, token=API_KEY).get_backend()
+        print("WARNING: When using the real IQM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
     else:
-        raise Exception(f'Backend type \'{backend_type}\' not implemented.')
+        raise Exception('Backend type \'{backend_type}\' not implemented.')
 
     print(f'Backend: {backend}')
     ######################################
@@ -80,15 +79,24 @@ if __name__ == '__main__':
     # Map the quantum measurement to the classical bits
     circuit.measure_all()
 
+    # Draw the circuit
+    print(circuit.draw())
+
     # Circuits must obey the ISA of the backend.
-    # Convert to ISA circuits
-    if 'iqm' in backend_type: from iqm.qiskit_iqm import transpile_to_IQM as transpile
-    else: from qiskit import transpile
+    # Convert to ISA circuits via transpilation for the specific backend.
+    if 'iqm' in backend_type:
+        from iqm.qiskit_iqm import transpile_to_IQM as transpile
+    else:
+        from qiskit import transpile
     isa_circuit = transpile(circuit, backend)
 
     # Setup Sampler to submit job
     sampler = Sampler(backend)
-    # Run the job
+    # Run the job - this will sit on this line synchronously until complete.
+    # One could call sampler.run() and obtain the jobId, then subsequently
+    # execute the remainder of this script to poll the jobId for the
+    # completed result. A Jupyter notebook example in this project repo is
+    # provided to demonstrate.
     job = sampler.run([isa_circuit], shots=1000)
 
     # Grab results from the job
@@ -96,6 +104,3 @@ if __name__ == '__main__':
     # Returns counts
     counts = result[0].data.meas.get_counts()
     print(f"\nTotal count for 00 and 11 are: {counts}")
-
-    # Draw the circuit
-    print(circuit.draw())

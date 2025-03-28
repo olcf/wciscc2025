@@ -20,6 +20,8 @@ import numpy as np
 from func_qc import qc_circ
 import func_matrix_vector as matvec
 
+#pylint: disable = line-too-long
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-case", "--case_name",  type=str, default='ideal',

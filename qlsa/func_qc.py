@@ -17,20 +17,21 @@ import json
 import numpy as np
 # Importing standard Qiskit libraries
 from qiskit import qpy
+from qiskit.quantum_info import state_fidelity
+from qiskit.quantum_info import Statevector
+from qiskit.visualization import plot_histogram
 from qiskit_aer import AerSimulator
 from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime import RuntimeEncoder
 from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit.quantum_info import state_fidelity
-from qiskit.quantum_info import Statevector
-from qiskit.visualization import plot_histogram
 from iqm.qiskit_iqm import IQMProvider
 
 import matplotlib.pyplot as plt
 
 # pylint: disable = invalid-name, missing-function-docstring, line-too-long
 # pylint: disable = broad-exception-raised, consider-using-enumerate
+# pylint: disable = import-outside-toplevel, unspecified-encoding
 
 # get backend based on type and method
 def qc_backend(backend_type, backend_method, args):
@@ -128,7 +129,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
         t = time.time()
         isa_circ = transpile(circ, backend)
         t_transpile = time.time() - t
-        print(f'Time elapsed for transpiling the circuit:  {int(t_transpile/60)} min {t_transpile%60:.2f} sec')   
+        print(f'Time elapsed for transpiling the circuit:  {int(t_transpile/60)} min {t_transpile%60:.2f} sec')
 
         # Save data
         if args.savedata:
@@ -311,7 +312,4 @@ def fidelity(qfunc, true):
     '''
     solution_qfun_normed = qfunc / np.linalg.norm(qfunc)
     solution_true_normed = true / np.linalg.norm(true)
-    fidelity = state_fidelity(solution_qfun_normed, solution_true_normed)
-    return fidelity
-
-
+    return state_fidelity(solution_qfun_normed, solution_true_normed)

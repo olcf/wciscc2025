@@ -6,6 +6,8 @@
 #SBATCH -p batch
 #SBATCH -t 00:10:00
 
+# Odo is a smaller HPC system at Oak Ridge. The following project paths are examples.
+
 # Only necessary if submitting this job script like: sbatch --export=NONE ... (recommended)
 # Do NOT include this line when submitting without --export=NONE
 unset SLURM_EXPORT_ENV

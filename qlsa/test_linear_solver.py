@@ -13,7 +13,7 @@ from scipy.sparse import diags
 from qiskit_aer import AerSimulator
 from linear_solvers import NumPyLinearSolver, HHL
 
-
+#pylint: disable=invalid-name, line-too-long
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-nq", "--NQ_MATRIX", type=int, default=2, required=True,

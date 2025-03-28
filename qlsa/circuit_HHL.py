@@ -5,6 +5,7 @@ Script to generate HHL circuit that solves any Ax=b problem.
 Function `func_matrix_vector.py` is used to define A and b.
 Sample code run script:
 python circuit_HHL.py -case sample-tridiag -casefile input_vars.yaml --savedata
+python circuit_HHL.py -case hele-shaw -casefile input_vars.yaml 
 """
 
 import time

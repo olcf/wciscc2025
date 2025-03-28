@@ -14,7 +14,7 @@ import func_HeleShaw as HS
 
 
 #pylint: disable = missing-function-docstring, broad-exception-raised
-#pylint: disable = line-too-long, invalid-name
+#pylint: disable = line-too-long, invalid-name, unspecified-encoding
 
 def get_matrix_vector(args):
     if args.case_name == 'sample-tridiag':

@@ -12,6 +12,7 @@ from qiskit_aer import AerSimulator
 from qiskit.circuit.library import QuantumVolume
 from qiskit import transpile
 
+#pylint: disable=line-too-long
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-nq", "--NUM_QUBITS", type=int, default=2, required=True,
