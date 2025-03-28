@@ -6,6 +6,8 @@ Function `func_qc.py` is used to generate, transpile, and run the quantum circui
 Sample code run script:
 python solver.py -case sample-tridiag -casefile input_vars.yaml -s 100  
     -backtyp real-iqm -backmet garnet:mock
+python solver.py -case hele-shaw -casefile input_vars.yaml -s 100  
+    -backtyp ideal 
 '''
 
 import time
