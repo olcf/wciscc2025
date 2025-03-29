@@ -7,8 +7,6 @@ qiskit-algorithms
 qiskit-ibm-runtime            
 qiskit-qasm3-import   
 
-iqm-client[qiskit]
-
 jupyterlab
 matplotlib
 python-dotenv

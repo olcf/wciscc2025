@@ -52,18 +52,20 @@ if __name__ == '__main__':
         backend = service.backend("ibm_sherbrooke")
         print("WARNING: When using the real IBM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
     elif backend_type=='fake-iqm':
-        from iqm.qiskit_iqm import IQMProvider
-        # save your IQM account for future loading
-        API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-        server_url = "https://cocos.resonance.meetiqm.com/garnet:mock"
-        backend = IQMProvider(server_url, token=API_KEY).get_backend('facade_garnet')
+        # from iqm.qiskit_iqm import IQMProvider
+        # # save your IQM account for future loading
+        # API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
+        # server_url = "https://cocos.resonance.meetiqm.com/garnet:mock"
+        # backend = IQMProvider(server_url, token=API_KEY).get_backend('facade_garnet')
+        raise Exception('Backend type \'{backend_type}\' not implemented.')
     elif backend_type=='real-iqm':
-        from iqm.qiskit_iqm import IQMProvider
-        # save your IQM account for future loading
-        API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-        server_url = "https://cocos.resonance.meetiqm.com/garnet"
-        backend = IQMProvider(server_url, token=API_KEY).get_backend()
-        print("WARNING: When using the real IQM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
+        # from iqm.qiskit_iqm import IQMProvider
+        # # save your IQM account for future loading
+        # API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
+        # server_url = "https://cocos.resonance.meetiqm.com/garnet"
+        # backend = IQMProvider(server_url, token=API_KEY).get_backend()
+        # print("WARNING: When using the real IQM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
+        raise Exception('Backend type \'{backend_type}\' not implemented.')
     else:
         raise Exception('Backend type \'{backend_type}\' not implemented.')
 
@@ -86,7 +88,8 @@ if __name__ == '__main__':
     # Circuits must obey the ISA of the backend.
     # Convert to ISA circuits via transpilation for the specific backend.
     if 'iqm' in backend_type:
-        from iqm.qiskit_iqm import transpile_to_IQM as transpile
+        # from iqm.qiskit_iqm import transpile_to_IQM as transpile
+        raise Exception('Backend type \'{backend_type}\' not implemented.')
     else:
         from qiskit import transpile
     isa_circuit = transpile(circuit, backend)

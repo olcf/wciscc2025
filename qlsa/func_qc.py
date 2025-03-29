@@ -25,7 +25,6 @@ from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime import RuntimeEncoder
 from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2
 from qiskit_ibm_runtime import QiskitRuntimeService
-from iqm.qiskit_iqm import IQMProvider
 
 import matplotlib.pyplot as plt
 
@@ -61,13 +60,14 @@ def qc_backend(backend_type, backend_method, args):
             service = QiskitRuntimeService()
             backend = service.backend(backend_method)
     elif backend_type=='real-iqm':
-        # save your IQM account for future loading
-        API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-        server_url = f"https://cocos.resonance.meetiqm.com/{backend_method}"
-        if "mock" in backend_method:
-            backend = IQMProvider(server_url, token=API_KEY).get_backend(f'facade_{backend_method.split(":")[0]}')
-        else:
-            backend = IQMProvider(server_url, token=API_KEY).get_backend()
+        # # save your IQM account for future loading
+        # API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
+        # server_url = f"https://cocos.resonance.meetiqm.com/{backend_method}"
+        # if "mock" in backend_method:
+        #     backend = IQMProvider(server_url, token=API_KEY).get_backend(f'facade_{backend_method.split(":")[0]}')
+        # else:
+        #     backend = IQMProvider(server_url, token=API_KEY).get_backend()
+        raise Exception(f'Backend type \'{backend_type}\' not implemented.')
     else:
         raise Exception(f'Backend type \'{backend_type}\' not implemented.')
     return backend
@@ -123,7 +123,9 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
             flush=True)
     else:
         if args.backend_type in ('real-iqm'):
-            from iqm.qiskit_iqm import transpile_to_IQM as transpile
+            # from iqm.qiskit_iqm import IQMProvider
+            # from iqm.qiskit_iqm import transpile_to_IQM as transpile
+            raise Exception(f'Backend type \'{args.backend_type}\' not implemented.')
         else:
             from qiskit import transpile
         t = time.time()
