@@ -31,6 +31,11 @@ def get_yaml(input_file, doc_id):
     with open(input_file, 'r') as f:
         docs = yaml.safe_load_all(f)
         input_vars = next(islice(docs, doc_id, None))
+    savedir = input_vars['savedir'].format(**input_vars)
+    # Check if directory exists and create it if it doesn't
+    if not os.path.exists(savedir):
+        os.makedirs(savedir, exist_ok=True)
+        print(f"Created save directory: {savedir}")
     return input_vars
 
 def sample_tridiag(doc_id, args):

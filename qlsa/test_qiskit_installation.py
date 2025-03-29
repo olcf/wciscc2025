@@ -14,7 +14,6 @@ from qiskit_aer import AerSimulator
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2
-from iqm.qiskit_iqm import IQMProvider
 
 #pylint: disable=broad-exception-raised, line-too-long, ungrouped-imports, invalid-name
 
@@ -53,11 +52,13 @@ if __name__ == '__main__':
         backend = service.backend("ibm_sherbrooke")
         print("WARNING: When using the real IBM backend, running the circuit and returning the results will take time due to the queue wait time. The job submission may time out and you will get a connection error. Use the online dashboard to see results.")
     elif backend_type=='fake-iqm':
+        from iqm.qiskit_iqm import IQMProvider
         # save your IQM account for future loading
         API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
         server_url = "https://cocos.resonance.meetiqm.com/garnet:mock"
         backend = IQMProvider(server_url, token=API_KEY).get_backend('facade_garnet')
     elif backend_type=='real-iqm':
+        from iqm.qiskit_iqm import IQMProvider
         # save your IQM account for future loading
         API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
         server_url = "https://cocos.resonance.meetiqm.com/garnet"
