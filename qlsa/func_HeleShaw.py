@@ -1,3 +1,9 @@
+"""
+func_HeleShaw
+"""
+
+#pylint: disable = invalid-name, missing-function-docstring
+
 import numpy as np
 
 def ij2idx(row_i, column_j, column):
@@ -162,13 +168,3 @@ def HeleShaw(x, y, pin, pout, L, D, mu):
     P = pin + ((pout-pin)*x/L)
     U = -(0.5/mu) * ( (pout-pin) * y * (D-y) / L)
     return P, U
-
-
-
-
-
-
-
-
-
-

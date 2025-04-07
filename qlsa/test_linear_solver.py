@@ -5,28 +5,28 @@ Sample run script:
 python test_linear_solver.py -nq 2
 """
 
+import time
+import argparse
 import numpy as np
 from scipy.sparse import diags
 # Importing Qiskit libraries
 from qiskit_aer import AerSimulator
 from linear_solvers import NumPyLinearSolver, HHL
 
-import time
-import argparse
+#pylint: disable=invalid-name, line-too-long
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-nq", "--NQ_MATRIX", type=int, default=2, required=True, help="Numer of qubits to determine size of linear system of quations (A*x=b) being solved. Size of A matrix = 2^NQ_MATRIX.")
+parser.add_argument("-nq", "--NQ_MATRIX", type=int, default=2, required=True,
+    help="Numer of qubits to determine size of linear system of quations " + \
+        "(A*x=b) being solved. Size of A matrix = 2^NQ_MATRIX.")
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    # ============
     # Generate matrix and vector
-    """
-    We use a sample tridiagonal system. It's 2x2 version is:
-    matrix = np.array([ [1, -1/3], [-1/3, 1] ])
-    vector = np.array([1, 0])
-    """
-    n_qubits_matrix = args.NQ_MATRIX 
+    # We use a sample tridiagonal system. It's 2x2 version is:
+    # matrix = np.array([ [1, -1/3], [-1/3, 1] ])
+    # vector = np.array([1, 0])
+    n_qubits_matrix = args.NQ_MATRIX
     MATRIX_SIZE = 2 ** n_qubits_matrix
     # entries of the tridiagonal Toeplitz symmetric matrix
     a = 1
@@ -37,7 +37,8 @@ if __name__ == '__main__':
     vector = np.array([1] + [0]*(MATRIX_SIZE - 1))
 
     # ============
-    # Select backend: Using different simulators (default in `linear_solvers` is statevector simulation)
+    # Select backend: Using different simulators (default in `linear_solvers`
+    # is statevector simulation)
     backend = AerSimulator(method='statevector')
     backend.set_options(precision='single')
 
@@ -48,7 +49,7 @@ if __name__ == '__main__':
 
     # ============
     # Solutions
-    print(f'======================')
+    print('======================')
     # Classical
     t = time.time()
     classical_solution = NumPyLinearSolver().solve(matrix, vector/np.linalg.norm(vector))
@@ -62,19 +63,19 @@ if __name__ == '__main__':
 
     # ============
     # Circuits
-    print(f'======================')
+    print('======================')
     print('HHL circuit:')
     print(hhl_solution.state)
 
     # ============
     # Comparing the observable - Euclidean norm
-    print(f'======================')
+    print('======================')
     print(f'Euclidean norm classical:\n{classical_solution.euclidean_norm}')
     print(f'Euclidean norm HHL:\n{hhl_solution.euclidean_norm} (diff (%): {np.abs(classical_solution.euclidean_norm-hhl_solution.euclidean_norm)*100/classical_solution.euclidean_norm:1.3e})')
 
     # ============
     # Comparing the solution vectors component-wise
-    print(f'======================')
+    print('======================')
     from qiskit.quantum_info import Statevector
     def get_solution_vector(solution, nstate):
         """

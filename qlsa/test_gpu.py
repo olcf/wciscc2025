@@ -6,27 +6,36 @@ Sample run script:
 python test_gpu.py -nq 2 --gpu
 '''
 
+import argparse
+import time
 from qiskit_aer import AerSimulator
 from qiskit.circuit.library import QuantumVolume
 from qiskit import transpile
-import argparse
-import time
+
+#pylint: disable=line-too-long
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-nq", "--NUM_QUBITS", type=int, default=2, required=True, help="Numer of qubits to determine size of circuit.")
-parser.add_argument("--gpu", default=False, action='store_true', help="Use GPU backend for Aer simulator.")
-parser.add_argument("--gpumultiple", default=False, action='store_true', help="Use multiple GPUs for the backend of Aer simulator.")
+parser.add_argument("-nq", "--NUM_QUBITS", type=int, default=2, required=True,
+    help="Numer of qubits to determine size of circuit.")
+parser.add_argument("--gpu", default=False, action='store_true',
+    help="Use GPU backend for Aer simulator.")
+parser.add_argument("--gpumultiple", default=False, action='store_true',
+    help="Use multiple GPUs for the backend of Aer simulator.")
 args = parser.parse_args()
 
 if __name__ == '__main__':
     # Select backend
-    if args.gpu: backend = AerSimulator(method='statevector', device='GPU')
-    elif args.gpumultiple: backend = AerSimulator(method='statevector', device='GPU', blocking_enable=True, blocking_qubits=18)
-    else: backend = AerSimulator(method='statevector')
+    if args.gpu:
+        backend = AerSimulator(method='statevector', device='GPU')
+    elif args.gpumultiple:
+        backend = AerSimulator(method='statevector', device='GPU',
+            blocking_enable=True, blocking_qubits=18)
+    else:
+        backend = AerSimulator(method='statevector')
     print(f'Simulator: {backend}')
 
     # Generate circuit and transpile
-    qubits = args.NUM_QUBITS 
+    qubits = args.NUM_QUBITS
     t = time.time()
     qc = QuantumVolume(qubits, seed = 0)
     qc.measure_all()
