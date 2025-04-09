@@ -25,6 +25,7 @@ from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime import RuntimeEncoder
 from qiskit_ibm_runtime.fake_provider import FakeProviderForBackendV2
 from qiskit_ibm_runtime import QiskitRuntimeService
+from iqm.qiskit_iqm import IQMProvider
 
 import matplotlib.pyplot as plt
 
@@ -60,14 +61,14 @@ def qc_backend(backend_type, backend_method, args):
             service = QiskitRuntimeService()
             backend = service.backend(backend_method)
     elif backend_type=='real-iqm':
-        # # save your IQM account for future loading
-        # API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
-        # server_url = f"https://cocos.resonance.meetiqm.com/{backend_method}"
-        # if "mock" in backend_method:
-        #     backend = IQMProvider(server_url, token=API_KEY).get_backend(f'facade_{backend_method.split(":")[0]}')
-        # else:
-        #     backend = IQMProvider(server_url, token=API_KEY).get_backend()
-        raise Exception(f'Backend type \'{backend_type}\' not implemented.')
+        # save your IQM account for future loading
+        API_KEY = os.getenv('IQM_API_KEY') # ${IQM_TOKEN} can't be set when using `token` parameter below
+        server_url = f"https://cocos.resonance.meetiqm.com/{backend_method}"
+        if "mock" in backend_method:
+            backend = IQMProvider(server_url, token=API_KEY).get_backend(f'facade_{backend_method.split(":")[0]}')
+        else:
+            backend = IQMProvider(server_url, token=API_KEY).get_backend()
+        # raise Exception(f'Backend type \'{backend_type}\' not implemented.')
     else:
         raise Exception(f'Backend type \'{backend_type}\' not implemented.')
     return backend
@@ -123,9 +124,8 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
             flush=True)
     else:
         if args.backend_type in ('real-iqm'):
-            # from iqm.qiskit_iqm import IQMProvider
-            # from iqm.qiskit_iqm import transpile_to_IQM as transpile
-            raise Exception(f'Backend type \'{args.backend_type}\' not implemented.')
+            from iqm.qiskit_iqm import transpile_to_IQM as transpile
+            # raise Exception(f'Backend type \'{args.backend_type}\' not implemented.')
         else:
             from qiskit import transpile
         t = time.time()
@@ -150,21 +150,29 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     # 3. Run and get counts
     shots = args.SHOTS
     # Setup Sampler
-    sampler = Sampler(backend)
     t = time.time()
+    
     # Run the job
-    job = sampler.run([isa_circ], shots=shots)
-    # Grab results from the job
-    # job_id = job.job_id()
-    # print(f"job_id: {job_id}")
-    # from iqm.qiskit_iqm.iqm_job import IQMJob
-    # job = IQMJob(backend, job_id)
+    if args.backend_type in ('real-iqm'):
+        job = backend.run(isa_circ, shots=shots)
+    elif args.backend_type in ('real-ibm'):
+        sampler = Sampler(backend)
+        job = sampler.run([isa_circ], shots=shots)
+   
+   # Grab results from the job
+    
+    job_id = job.job_id()
+    print(f"job_id: {job_id}")
     result = job.result()
     t_run = time.time() - t
     print(f'Time elapsed for running the circuit:  {int(t_run/60)} min {t_run%60:.2f} sec',
         flush=True)
+    
     # Returns counts
-    counts = result[0].data.meas.get_counts()
+    if args.backend_type in ('real-iqm'):
+        counts = result.get_counts()
+    elif args.backend_type in ('real-ibm'):
+        counts = result[0].data.meas.get_counts()
     print(f'counts:\n{counts}')
 
     # Saving the final statevector if using ideal (qiskit) backend
