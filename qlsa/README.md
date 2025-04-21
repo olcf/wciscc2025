@@ -20,6 +20,8 @@ The general workflow is to:
 4. Run the QLSA solver with the circuit you just generated
 5. Analyze your results
 
+### Running interactively
+
 0. Clone the repository and `cd` into the `qlsa` directory (if you have not already)
     ```
     git clone https://github.com/olcf/wciscc2025.git
