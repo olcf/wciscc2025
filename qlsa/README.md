@@ -239,7 +239,7 @@ All developments were done on [OLCF Odo](https://docs.olcf.ornl.gov/systems/odo_
 2. Run the circuit on a backend of your choosing: [`solver.py`](solver.py)
       * ***NOTE:*** Make sure to source your API tokens from the keys.sh file.
       ```
-      python solver.py -case sample-tridiag -casefile input_vars.yaml -s 1000 --savedata --backend real-iqm --backend-method garnet:mock
+      python solver.py -case sample-tridiag -casefile input_vars.yaml -s 1000 --savedata --backend_type real-iqm --backend_method garnet:mock
       ```
 
 > Warning: For our purposes, we "hacked" Qiskit's `backend_sampler_v2.py` to workaround IQM returning results in raw strings instead of bytes. The fixed routine is here: `/gpfs/wolf2/olcf/trn037/world-shared/backend_sampler_v2.py`. (in original lines 211/212, switched `num_bytes` to be the length of the string instead)

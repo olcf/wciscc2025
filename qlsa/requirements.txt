@@ -1,5 +1,5 @@
 PyYAML
-quantum_linear_solvers git+https://github.com/jw676/quantum_linear_solvers
+quantum_linear_solvers @ git+https://github.com/jw676/quantum_linear_solvers
 
 qiskit
 qiskit

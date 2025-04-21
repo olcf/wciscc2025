@@ -137,7 +137,6 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     # 2. Transpile circuit for simulator
     savefilename = f'{filename}_circ-transpile_nqmatrix{n_qubits_matrix}_backend-{args.backend_method}'
     if args.loadcirctranspile is True:
-    if args.loadcirctranspile is True:
         t = time.time()
         file = open(savefilename, 'rb')
         data = pickle.load(file)
