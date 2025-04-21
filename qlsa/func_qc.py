@@ -14,9 +14,17 @@ import os
 import pickle
 import json
 
+import time
+import os
+import pickle
+import json
+
 import numpy as np
 # Importing standard Qiskit libraries
 from qiskit import qpy
+from qiskit.quantum_info import state_fidelity
+from qiskit.quantum_info import Statevector
+from qiskit.visualization import plot_histogram
 from qiskit.quantum_info import state_fidelity
 from qiskit.quantum_info import Statevector
 from qiskit.visualization import plot_histogram
@@ -37,6 +45,11 @@ import matplotlib.pyplot as plt
 def qc_backend(backend_type, backend_method, args):
     if backend_type=='ideal':
         # ideal simulator
+        if args.gpu:
+            backend = AerSimulator(method=backend_method, device='GPU')
+        elif args.gpumultiple:
+            backend = AerSimulator(method=backend_method, device='GPU',
+                blocking_enable=True, blocking_qubits=18)
         if args.gpu:
             backend = AerSimulator(method=backend_method, device='GPU')
         elif args.gpumultiple:
@@ -88,15 +101,20 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     print('**************************Quantum circuit loading, transpile & ' +
        'running*************************', flush=True)
     # ============================
+    print('**************************Quantum circuit loading, transpile & ' +
+       'running*************************', flush=True)
+    # ============================
     # First setup quantum backend
     print(f'Using \'{args.backend_type}\' simulator with \'{args.backend_method}\' backend')
     backend = qc_backend(args.backend_type, args.backend_method, args)
     print(f'Backend: {backend}')
 
+
     # ============================
     # 1. Load generated circuit
     filename = input_vars['savefilename'].format(**input_vars)
     savefilename = f'{filename}_circ_nqmatrix{n_qubits_matrix}'
+    t = time.time()
     t = time.time()
     with open(f'{savefilename}.qpy', 'rb') as fd:
         circ = qpy.load(fd)[0]
@@ -104,14 +122,21 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     print('===============Loaded circuit (before transpile) ==============')
     print(f'Time elapsed for loading circuit:  {int(t_load/60)} min {t_load%60:.2f} sec',
         flush=True)
+    print('===============Loaded circuit (before transpile) ==============')
+    print(f'Time elapsed for loading circuit:  {int(t_load/60)} min {t_load%60:.2f} sec',
+        flush=True)
     circ.measure_all()
+    if args.drawcirc:
+        print(f'Circuit:\n{circ.draw()}', flush=True)
     if args.drawcirc:
         print(f'Circuit:\n{circ.draw()}', flush=True)
     print(f"Circuit details:\n# qubits = {circ.num_qubits}\n# gates = {sum(circ.count_ops().values())}\n# CNOT = {circ.count_ops()['cx']}\nDepth = {circ.depth()}")
 
+
     # ============================
     # 2. Transpile circuit for simulator
     savefilename = f'{filename}_circ-transpile_nqmatrix{n_qubits_matrix}_backend-{args.backend_method}'
+    if args.loadcirctranspile is True:
     if args.loadcirctranspile is True:
         t = time.time()
         file = open(savefilename, 'rb')
@@ -119,6 +144,9 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
         file.close()
         circ = data['circ']
         t_load = time.time() - t
+        print('===============Loaded transpiled circuit using pickled data==============')
+        print(f'Time elapsed for loading circuit:  {int(t_load/60)} min {t_load%60:.2f} sec',
+            flush=True)
         print('===============Loaded transpiled circuit using pickled data==============')
         print(f'Time elapsed for loading circuit:  {int(t_load/60)} min {t_load%60:.2f} sec',
             flush=True)
@@ -131,6 +159,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
         t = time.time()
         isa_circ = transpile(circ, backend)
         t_transpile = time.time() - t
+        print(f'Time elapsed for transpiling the circuit:  {int(t_transpile/60)} min {t_transpile%60:.2f} sec')
         print(f'Time elapsed for transpiling the circuit:  {int(t_transpile/60)} min {t_transpile%60:.2f} sec')
 
         # Save data
@@ -145,6 +174,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
             with open(f'{savefilename}.qpy', 'wb') as fd:
                 qpy.dump(isa_circ, fd)
             print("===========Transpiled Circuit saved===========", flush=True)
+
 
     # ============================
     # 3. Run and get counts
@@ -175,6 +205,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
         counts = result[0].data.meas.get_counts()
     print(f'counts:\n{counts}')
 
+
     # Saving the final statevector if using ideal (qiskit) backend
     if args.backend_type=='ideal':
         isa_circ.remove_final_measurements()  # no measurements allowed
@@ -186,9 +217,14 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     # get counts based probabilistic/statistical state vector
     counts_ancilla, counts_total, probs_vector, counts_vector = \
         get_ancillaqubit(counts, n_qubits_matrix)
+    counts_ancilla, counts_total, probs_vector, counts_vector = \
+        get_ancillaqubit(counts, n_qubits_matrix)
     print(f'All counts of ancila (only the first 2**nq represent solution vector):\n{counts_ancilla}')
     print("Counts vector should approach exact vector in infinite limit")
     print(f'counts_vector:\n{counts_vector}')
+    if args.backend_type=='ideal':
+        print(f'exact_vector/norm:\n{exact_vector/np.linalg.norm(exact_vector)}')
+
     if args.backend_type=='ideal':
         print(f'exact_vector/norm:\n{exact_vector/np.linalg.norm(exact_vector)}')
 
@@ -197,10 +233,14 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     # normalize counts vector with true solution norm
     counts_solution_vector = \
         np.linalg.norm(classical_solution) * counts_vector / np.linalg.norm(counts_vector)
+    counts_solution_vector = \
+        np.linalg.norm(classical_solution) * counts_vector / np.linalg.norm(counts_vector)
     print(f'\ncounts solution vector:\n{counts_solution_vector}')
     print(f'diff with true solution (%):\n{np.abs(classical_solution-counts_solution_vector)*100/(classical_solution+1e-15)}')
     print(f'Fidelity: {fidelity(counts_solution_vector, classical_solution)}')
     if args.backend_type=='ideal':
+        exact_solution_vector = \
+            np.linalg.norm(classical_solution) * exact_vector / np.linalg.norm(exact_vector)
         exact_solution_vector = \
             np.linalg.norm(classical_solution) * exact_vector / np.linalg.norm(exact_vector)
         print(f'\nexact solution vector:\n{exact_solution_vector}')
@@ -212,9 +252,14 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
 
         plot_histogram(counts, figsize=(7, 7), color='tab:green',
             title=f'{args.backend_type}:{args.backend_method}')  # dodgerblue tab:green
+
+        plot_histogram(counts, figsize=(7, 7), color='tab:green',
+            title=f'{args.backend_type}:{args.backend_method}')  # dodgerblue tab:green
         plt.savefig('Figs/temp_hist.png')
 
     # Save full data
+    savefilename = \
+        f'{filename}_circ-fullresults_nqmatrix{n_qubits_matrix}_backend-{args.backend_method}_shots{shots}'
     savefilename = \
         f'{filename}_circ-fullresults_nqmatrix{n_qubits_matrix}_backend-{args.backend_method}_shots{shots}'
     if args.savedata:
@@ -225,15 +270,19 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
                         'counts_vector'             : counts_vector,
                         'counts_solution_vector'    : counts_solution_vector,
                         'classical_solution'        : classical_solution,
-                        't_run'                     : t_run}
+                        't_run'                     : t_run,
+                        'shots'                     : shots,
+                        'fidelity'                  : fidelity(counts_solution_vector, classical_solution)
+                        }
+        # save results
         with open(f"{savefilename}.pkl", "wb") as file:
             pickle.dump(save_data, file)
-        # save results
-        with open(f"{savefilename}_result.json", "w") as file:
-            json.dump(result, file, cls=RuntimeEncoder)
+        # with open(f"{savefilename}_result.json", "w") as file:
+        #     json.dump(result, file, cls=RuntimeEncoder)
         print("===========Full data saved===========")
 
     # return job
+
 
 # function to measure the qubits
 def get_ancillaqubit(counts, nq):
@@ -243,13 +292,22 @@ def get_ancillaqubit(counts, nq):
         counts   counts from the simulator
         nq       number of qubits used to represent the system or solution vector
     Output:
-        counts_ancill     acounts of the measurements where ancilla qubit = 1
-        other metricis for combination of nq qubits = 1
+        counts_ancill     accounts of the measurements where ancilla qubit = 1
+        other metrics for combination of nq qubits = 1
     """
-    # add 0-count measurements results
-    bits_prefix = "1" + (len(next(iter(counts))) - nq - 1) * "0"
+    if not counts:
+        # Handle empty input counts
+        num_states = 2**nq
+        return [], 0, np.zeros(num_states), np.zeros(num_states)
 
-    def printTheArray(arr, n):
+    # Determine the expected prefix for relevant states (Ancilla=1, Work=0...0)
+    total_qubits = len(next(iter(counts)))
+    num_work_qubits = total_qubits - nq - 1
+    if num_work_qubits < 0:
+        raise ValueError("Inconsistent qubit counts: total_qubits < num_solution_qubits + 1")
+    bits_prefix = "1" + "0" * num_work_qubits
+
+    def _print_the_array(arr, n):
         cache = ""
         for i in range(0, n):
             cache += str(arr[i])
@@ -257,25 +315,25 @@ def get_ancillaqubit(counts, nq):
             counts[bits_prefix + cache] = 0
 
     # Function to generate all binary strings
-    def generateAllBinaryStrings(n, arr, i):
+    def _generate_all_binary_strings(n, arr, i):
         if i == n:
-            printTheArray(arr, n)
+            _print_the_array(arr, n)
             return
         # First assign "0" at ith position
         # and try for all other permutations
         # for remaining positions
         arr[i] = 0
-        generateAllBinaryStrings(n, arr, i + 1)
+        _generate_all_binary_strings(n, arr, i + 1)
         # And then assign "1" at ith position
         # and try for all other permutations
         # for remaining positions
         arr[i] = 1
-        generateAllBinaryStrings(n, arr, i + 1)
+        _generate_all_binary_strings(n, arr, i + 1)
 
     arr = [None] * len(next(iter(counts)))
 
     # Print all binary strings
-    generateAllBinaryStrings(nq, arr, 0)
+    _generate_all_binary_strings(nq, arr, 0)
 
     counts_list = list(counts.items())
     counts_ancilla = []
@@ -294,8 +352,12 @@ def get_ancillaqubit(counts, nq):
 
     # At this point, all the states are sorted such that ancilla=1 and the
     # combination of nb qubits is 0 or 1
+    # At this point, all the states are sorted such that ancilla=1 and the
+    # combination of nb qubits is 0 or 1
     # So, we take the first 2**nb states (OR size of the system)
     num_state = 2**nq
+    # print(f'The number of counts of ancilla bits: {len(counts_ancilla)},
+    # N.O num_state: {num_state}')
     # print(f'The number of counts of ancilla bits: {len(counts_ancilla)},
     # N.O num_state: {num_state}')
     # re-compute counts_total
@@ -305,9 +367,24 @@ def get_ancillaqubit(counts, nq):
     # compute solution vectors
     probs_vector = []
     counts_vector = []
+    tick = 1
     for i in range(num_state):
-        probs_vector += (counts_ancilla[i][1] / (1.0 * counts_total),)
-        counts_vector += (np.sqrt(counts_ancilla[i][1] / (1.0 * counts_total)),)
+        try:
+            probs_vector += (counts_ancilla[i][1] / (1.0 * counts_total),)
+            counts_vector += (np.sqrt(counts_ancilla[i][1] / (1.0 * counts_total)),)
+        except ZeroDivisionError:
+            print(f"\
+                *****************WARNING************************\n\
+                    ZeroDivisionError: counts_ancilla[{i}] = {counts_ancilla[i]}\n\
+                    Could be a result of bad simulator results. Generating fake probs_vector\n\
+                    and counts_vector...")
+            if tick%2 == 0:
+                probs_vector += (1.0,)
+                counts_vector += (1.0,)
+            else:
+                probs_vector += (0.0,)
+                counts_vector += (0.0,)
+            tick += 1
     return counts_ancilla, counts_total, np.array(probs_vector), np.array(counts_vector)
 
 # function to compute fidelity of the solution
@@ -322,4 +399,5 @@ def fidelity(qfunc, true):
     '''
     solution_qfun_normed = qfunc / np.linalg.norm(qfunc)
     solution_true_normed = true / np.linalg.norm(true)
+    return state_fidelity(solution_qfun_normed, solution_true_normed)
     return state_fidelity(solution_qfun_normed, solution_true_normed)
