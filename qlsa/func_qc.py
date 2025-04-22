@@ -196,10 +196,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     print(f'counts_vector:\n{counts_vector}')
     if args.backend_type=='ideal':
         print(f'exact_vector/norm:\n{exact_vector/np.linalg.norm(exact_vector)}')
-
-    if args.backend_type=='ideal':
-        print(f'exact_vector/norm:\n{exact_vector/np.linalg.norm(exact_vector)}')
-
+    
     # print solutions
     print(f'\ntrue solution:\n{classical_solution}')
     # normalize counts vector with true solution norm

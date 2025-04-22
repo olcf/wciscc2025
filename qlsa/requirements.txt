@@ -1,18 +1,25 @@
 PyYAML
 quantum_linear_solvers @ git+https://github.com/jw676/quantum_linear_solvers
 
-qiskit
-qiskit
-qiskit-aer                    
-qiskit-algorithms             
-qiskit-ibm-runtime            
-qiskit-qasm3-import 
-qiskit-iqm
-qiskit-qasm3-import 
-qiskit-iqm
+qiskit==1.2.4
+qiskit-aer==0.15.1
+qiskit-algorithms==0.3.1   
+qiskit-ibm-runtime==0.35.0
+qiskit-qasm3-import==0.5.1
+qiskit-iqm==18.0
 
 jupyterlab
 matplotlib
 python-dotenv
 numpy
 
+##########################
+# Known working versions #
+##########################
+
+# PyYAML==6.0.2
+# quantum_linear_solvers @ git+https://github.com/jw676/quantum_linear_solvers==0.1.0
+# jupyterlab==4.4.0
+# matplotlib==3.10.1
+# python-dotenv==1.1.0
+# numpy==2.2.4
