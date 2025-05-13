@@ -159,7 +159,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     # Run the job
     if args.backend_type in ('real-iqm'):
         job = backend.run(isa_circ, shots=shots)
-    elif args.backend_type in ('real-ibm'):
+    elif args.backend_type in (['real-ibm','ideal']):
         sampler = Sampler(backend)
         job = sampler.run([isa_circ], shots=shots)
    
@@ -175,7 +175,7 @@ def qc_circ(n_qubits_matrix, classical_solution, args, input_vars):
     # Returns counts
     if args.backend_type in ('real-iqm'):
         counts = result.get_counts()
-    elif args.backend_type in ('real-ibm'):
+    elif args.backend_type in (['real-ibm','ideal']):
         counts = result[0].data.meas.get_counts()
     print(f'counts:\n{counts}')
 
